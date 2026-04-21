@@ -1,49 +1,49 @@
-# 1. Usamos una imagen base oficial de PHP con FPM (FastCGI Process Manager)
-# Esta versión es ligera y eficiente para servir APIs.
-FROM php:8.2-fpm
+# Usar la imagen oficial de PHP con Apache
+FROM php:8.2-apache
 
-# 2. Definimos el directorio de trabajo dentro del contenedor
-WORKDIR /var/www
-
-# 3. Instalamos dependencias del sistema operativo (Linux Debian en este caso)
-# Necesitamos herramientas para descomprimir archivos y librerías para SQLite.
+# Instalar dependencias del sistema y extensiones de PHP requeridas por Laravel y JWT
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
-    zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
-    unzip \
+    sqlite3 \
+    libsqlite3-dev \
     git \
     curl \
-    libzip-dev \
-    libsqlite3-dev
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd
 
-# 4. Limpiamos el caché de paquetes para que la imagen sea más pequeña y eficiente
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Habilitar el módulo mod_rewrite de Apache (necesario para las rutas de Laravel)
+RUN a2enmod rewrite
 
-# 5. Instalamos las extensiones de PHP necesarias para Laravel y SQLite
-RUN docker-php-ext-install pdo_mysql pdo_sqlite zip exif pcntl
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install gd
+# Cambiar el DocumentRoot de Apache a la carpeta public de Laravel
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# 6. Descargamos la última versión de Composer desde su imagen oficial
-# Esto nos permite ejecutar "composer install" dentro del contenedor.
+# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 7. Copiamos todos los archivos de tu proyecto local al contenedor
-COPY . /var/www
+# Establecer el directorio de trabajo
+WORKDIR /var/www/html
 
-# 8. Ajustamos los permisos de las carpetas de Laravel
-# El servidor web necesita escribir en 'storage' y 'bootstrap/cache'.
-# El usuario 'www-data' es el estándar para servidores web en Linux.
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# Copiar los archivos del proyecto al contenedor
+COPY . .
 
-# 9. Exponemos el puerto 9000 (el que usa PHP-FPM por defecto)
-EXPOSE 9000
+# Instalar las dependencias de PHP (ignorando dependencias de desarrollo para aligerar la imagen)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# 10. Comando para iniciar PHP-FPM
-CMD ["php-fpm"]
+# Dar permisos a las carpetas storage y bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Exponer el puerto 80
+EXPOSE 80
+
+# Copiar el script de inicio y darle permisos de ejecución
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Usar el script como punto de entrada
+ENTRYPOINT ["entrypoint.sh"]

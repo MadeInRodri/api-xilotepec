@@ -6,12 +6,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsUserAdmin;
 Use App\Http\Middleware\IsUserAuth;
 
-/* Route::get('/user', function (Request $request) {
-    return $request->user();
-    //Este Middleware hace algo xd
-})->middleware('auth:sanctum');
- */
-
 //Una vez registrado:
 Route::middleware([isUserAuth::class])->group(function (){
     Route::get('/usuarios',[UserController::class,'index']);
@@ -31,9 +25,7 @@ Route::middleware([isUserAuth::class])->group(function (){
 });
 
 
-
-
-//----------Entrada de API
+//Entrada de API
 Route::post('/registro', [UserController::class,'store']);
 
 Route::post('/login', [UserController::class,'login']);

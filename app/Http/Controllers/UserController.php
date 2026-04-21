@@ -42,7 +42,7 @@ class UserController extends Controller
             $validatedData = Validator::make($request->all(),[
             'name' => 'bail|required|string|min:3',
             'email' => 'bail|required|string|email|unique:users',
-            'role' => 'nullable|string|in:admin,empleado',
+            'role' => 'nullable|string|in:admin,cliente',
             'password' => 'required|string|min:8'
             ], 
         ['email.unique' => 'El email ya existe']);
