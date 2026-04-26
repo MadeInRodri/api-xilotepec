@@ -10,7 +10,7 @@ class Promotion extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'image_url', 'is_active', 'start_date', 'end_date', 'type', 'value'
+        'name', 'description', 'image_url', 'is_active', 'start_date', 'end_date', 'type', 'value'
     ];
 
     // Casteamos los campos de fecha y booleanos
@@ -20,8 +20,10 @@ class Promotion extends Model
         'end_date' => 'datetime',
     ];
 
-    public function products()
+   public function products()
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class, 'promotion_product')
+                    ->withPivot('required_quantity')
+                    ->withTimestamps();
     }
 }

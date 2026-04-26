@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('promotions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('description');
             $table->string('image_url');
             $table->boolean('is_active')->default(true);
             $table->dateTime('start_date');
