@@ -7,8 +7,8 @@ GET http://127.0.0.1:8000/api/usuarios/2
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzcxMTY0NzgzLCJleHAiOjE3NzExNjgzODMsIm5iZiI6MTc3MTE2NDc4MywianRpIjoiSUo4dTRla3pnc21zUnlFNSIsInN1YiI6IjciLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.GFCMmB122bof1Ox3KEiJjB2nxFBCXbNL51lkRZDb1S4
 
 ###
-GET http://127.0.0.1:8000/api/logout
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzcxMTY0NzgzLCJleHAiOjE3NzExNjgzODMsIm5iZiI6MTc3MTE2NDc4MywianRpIjoiSUo4dTRla3pnc21zUnlFNSIsInN1YiI6IjciLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.GFCMmB122bof1Ox3KEiJjB2nxFBCXbNL51lkRZDb1S4
+GET http://127.0.0.1:8000/api/admin/dashboard/index
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzc4MjYzMTcyLCJleHAiOjE3NzgyNjY3NzIsIm5iZiI6MTc3ODI2MzE3MiwianRpIjoibTlPYXdNSlhGalNxckRodSIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.DnBXVhtlYLwnlDTETAJxdhi2HYfz4RVj1cn6kDra0cI
 
 ###
 
@@ -46,3 +46,12 @@ Accept: application/json
     "email": "admin3@gmail.com",
     "password": "admin12345"
 }
+
+###
+GET http://127.0.0.1:8000/api/admin/dashboard/index HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+
+
+### dashboard

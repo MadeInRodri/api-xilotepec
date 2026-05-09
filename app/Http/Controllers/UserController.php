@@ -31,7 +31,7 @@ class UserController extends Controller
         if($users->isEmpty()){
             return response()->json(['Message' => 'No hay usuarios registrados'],404);
         }
-        return response()->json($users,200);
+        return response()->json(['data' => $users],200);
     }
 
     //Controlador de registro:
@@ -56,7 +56,7 @@ class UserController extends Controller
                 ],401);
             }
             $newUser =  $validatedData->getData();
-            $newUser['role'] = $newUser['role'] ?? 'empleado';
+            $newUser['role'] = $newUser['role'] ?? 'cliente';
             
             $newUser['password'] = Hash::make($newUser['password']);
 
@@ -110,7 +110,7 @@ class UserController extends Controller
         $validatedData = Validator::make($request->all(),[
             'name' => 'sometimes|string|min:3',
             'email' => 'sometimes|string|email|unique:users,email,' . $user->id,
-            'role' => 'sometimes|string|in:admin,empleado',
+            'role' => 'sometimes|string|in:admin,cliente',
             'password' => 'sometimes|string|min:8'
         ],
         ['email.unique' => 'El email ya existe']
@@ -152,36 +152,58 @@ class UserController extends Controller
     }
 
     public function login(Request $request) {
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required|string|min:8'
-    ]);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:8'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['status' => 'error', 'errores' => $validator->errors()], 422);
-    }
-
-    $credentials = $request->only('email', 'password');
-
-    try {
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['status' => 'error', 'mensaje' => 'Credenciales inválidas'], 401);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errores' => $validator->errors()], 422);
         }
-    } catch (JWTException $e) {
-        return response()->json(['status' => 'error', 'mensaje' => 'No se pudo crear el token'], 500);
-    }
 
-    return response()->json([
-        'status' => 'exito',
-        'mensaje' => 'Usuario logueado.',
-        'token' => $token
-    ]);
-}
+        $credentials = $request->only('email', 'password');
+
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['status' => 'error', 'mensaje' => 'Credenciales inválidas'], 401);
+            }
+        } catch (JWTException $e) {
+            return response()->json(['status' => 'error', 'mensaje' => 'No se pudo crear el token'], 500);
+        }
+
+        return response()->json([
+            'status' => 'exito',
+            'mensaje' => 'Usuario logueado.',
+            'user'=> auth('api')->user(),
+            'token' => $token,
+            'expires_at' => now()->addMinutes(config('jwt.ttl'))->timestamp
+        ]);
+    }
 
     public function logout(){
         JWTAuth::invalidate(JWTAuth::getToken());
         return response()->json(['status'=> 'exito',
         'mensaje' => 'Usuario deslogeado. Eliminado token...',
         ],200);
+    }
+     public function googleLogin(Request $request)
+    {
+        $user = User::firstOrCreate(
+            ['email' => $request->email],
+            [
+                'name' => $request->name,
+                'role' => 'cliente',
+                'password' => bcrypt(uniqid())
+            ]
+        );
+
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'status' => 'exito',
+            'mensaje' => 'Login con Google exitoso',
+            'token' => $token,
+            'user' => $user
+        ], 200);
     }
 }

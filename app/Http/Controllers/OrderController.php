@@ -138,16 +138,26 @@ class OrderController extends Controller
     /**
      * Ver el historial de órdenes (Cliente ve las suyas, Admin ve todas)
      */
+    //TODO: ARREGLARLO
     public function index(Request $request)
     {
         $user = auth()->user();
         
         $query = Order::with(['details', 'paymentMethod']);
+        $has_limit = $request->query('limit', null);
 
         // Si no es administrador, solo puede ver sus propias órdenes
         if ($user->role !== 'admin') {
             $query->where('user_id', $user->id);
-        }
+        }else{ 
+            
+            if($has_limit != null){
+                $orders = Order::with(['user:id,name'])->orderBy('created_at', 'desc')->limit($has_limit)->get();
+            }else{
+                $orders = Order::with(['user:id,name', 'details.product:id,url_image,description'])->orderBy('created_at', 'desc')->get();
+            }
+            return response()->json(['data' => $orders],200);
+        } 
 
         $orders = $query->orderBy('created_at', 'desc')->get();
 

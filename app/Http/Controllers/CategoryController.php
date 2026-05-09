@@ -17,7 +17,7 @@ class CategoryController extends Controller
     {
         // Traemos las categorías y de paso contamos cuántos productos tiene cada una
         $categories = Category::withCount('products')->get();
-
+        
         if ($categories->isEmpty()) {
             return response()->json(['message' => 'No hay categorías registradas'], 404);
         }

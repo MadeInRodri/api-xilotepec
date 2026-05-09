@@ -9,7 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentMethodController;
-
+use App\Http\Controllers\DashboardController;
 
 //Middleware
 use App\Http\Middleware\IsUserAdmin;
@@ -22,7 +22,7 @@ use App\Http\Middleware\IsUserAuth;
 // Entrada de API de Usuarios
 Route::post('/registro', [UserController::class, 'store']);
 Route::post('/login', [UserController::class, 'login']);
-
+Route::post('/login/google', [UserController::class, 'googleLogin']);
 
 // Catálogo de Productos y Categorías
 Route::get('/productos', [ProductController::class, 'index']);
@@ -36,8 +36,7 @@ Route::get('/metodos-pago', [PaymentMethodController::class, 'index']);
 
 //Promociones
 Route::get('/promociones', [PromotionController::class, 'index']);
-Route::get('/promociones/{id}', [PromotionController::class, 'show']);
-
+Route::get('/promociones-active', [PromotionController::class, 'promotions_active']);
 
 
 // =========================================================
@@ -87,5 +86,8 @@ Route::middleware([IsUserAuth::class])->group(function (){
 
         //Cambiar estado de una orden
         Route::patch('/ordenes/{id}/estado', [OrderController::class, 'updateStatus']);
+        Route::get('/admin/dashboard/index', [DashboardController::class, 'index']);
+        Route::get('/admin/dashboard/orders', [DashboardController::class, 'orders']);
+       
     });
 });
