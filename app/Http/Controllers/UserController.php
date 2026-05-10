@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
@@ -158,17 +159,39 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errores' => $validator->errors()], 422);
+            return response()->json(['status' => 'error', 'mensaje' => $validator->errors()], 422);
         }
-
         $credentials = $request->only('email', 'password');
-
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['status' => 'error', 'mensaje' => 'Credenciales inválidas'], 401);
             }
         } catch (JWTException $e) {
             return response()->json(['status' => 'error', 'mensaje' => 'No se pudo crear el token'], 500);
+        }
+        
+        $user = auth('api')->user();
+
+        if ($user->role == 'admin') {
+
+            $cacheKey = 'admin_logged_'.$user->id;
+
+            if (Cache::has($cacheKey)) {
+
+                JWTAuth::invalidate($token);
+
+                return response()->json([
+                    'status' => 'error',
+                    'mensaje' => 'Sesion invalida. Ya existe una sesion activa'
+                ], 403);
+            }
+
+            // Guardar sesión activa
+            Cache::put(
+                $cacheKey,
+                true,
+                now()->addMinutes(config('jwt.ttl'))
+            );
         }
 
         return response()->json([
@@ -182,6 +205,13 @@ class UserController extends Controller
 
     public function logout(){
         JWTAuth::invalidate(JWTAuth::getToken());
+        $user = auth('api')->user();
+
+        if ($user && $user->role == 'admin') {
+
+            Cache::forget('admin_logged_'.$user->id);
+        }
+
         return response()->json(['status'=> 'exito',
         'mensaje' => 'Usuario deslogeado. Eliminado token...',
         ],200);

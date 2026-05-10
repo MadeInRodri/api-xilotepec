@@ -34,7 +34,8 @@ class DashboardController extends Controller
             // =========================
             $summary = Order::selectRaw("
                     COUNT(*) as orders_count,
-                    SUM(CASE WHEN status IN ('pendiente','en_proceso') THEN 1 ELSE 0 END) as orders_active,
+                    SUM(CASE WHEN status IN ('Completada') THEN 1 ELSE 0 END) as orders_active,
+                    SUM(CASE WHEN status IN ('Pendiente') THEN 1 ELSE 0 END) as orders_pendiente,
                     COALESCE(SUM(total),0) as total_revenue
                 ")
                 ->where('date', '>=', $today)
@@ -157,6 +158,7 @@ class DashboardController extends Controller
                     'summary' => [
                         'orders_count' => (int) $summary->orders_count,
                         'orders_active' => (int) $summary->orders_active,
+                        'orders_pendiente' =>  (int) $summary->orders_pendiente,
                         'total_revenue' => (float) $summary->total_revenue,
                     ],
                     'categories' => $categories,
