@@ -178,7 +178,8 @@ class UserController extends Controller
 
             if (Cache::has($cacheKey)) {
 
-                JWTAuth::invalidate($token);
+                //JWTAuth::invalidate($token);
+                JWTAuth::setToken($token)->invalidate();
 
                 return response()->json([
                     'status' => 'error',

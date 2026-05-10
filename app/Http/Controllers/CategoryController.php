@@ -34,6 +34,7 @@ class CategoryController extends Controller
             $validatedData = Validator::make($request->all(), [
                 // Validamos que el nombre sea único en la tabla categories
                 'name' => 'bail|required|string|max:255|unique:categories,name',
+                'url_image' => 'bail|required|string|url'
             ], [
                 'name.unique' => 'Ya existe una categoría con este nombre.'
             ]);
@@ -99,6 +100,7 @@ class CategoryController extends Controller
         $validatedData = Validator::make($request->all(), [
             // Ignoramos el ID actual para que no marque error si enviamos el mismo nombre
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'url_image' => 'bail|required|string|url',
         ]);
 
         if ($validatedData->fails()) {
