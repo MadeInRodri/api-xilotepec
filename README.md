@@ -5,7 +5,7 @@ Este proyecto consiste en una API RESTful desarrollada con Laravel 12 para la ge
 ## Tecnologías y Herramientas
 
 - Framework: Laravel 12
-- Base de Datos: SQLite
+- Base de Datos: MySql
 - Autenticación: JWT
 - Contenerización: Docker & Docker Compose
 - Orquestación: Kubernetes (2 réplicas distribuidas)
@@ -18,7 +18,7 @@ Este proyecto consiste en una API RESTful desarrollada con Laravel 12 para la ge
    git clone https://github.com/MadeInRodri/api-laravel-auth
 
 2. Preparar la base de datos:
-   touch database/database.sqlite
+   php artisan migrate
 
 3. Levantar con Docker Compose:
    docker-compose up -d --build
@@ -51,21 +51,8 @@ Nota: Todas las solicitudes deben incluir el Header "Accept: application/json".
 
 El entorno utiliza dos contenedores principales:
 
-1. Contenedor 'app': Ejecuta PHP 8.2-FPM con extensiones para SQLite.
+1. Contenedor 'app': Ejecuta PHP 8.2-FPM con extensiones para MySQL.
 2. Contenedor 'web': Servidor Nginx que actúa como proxy inverso.
-
----
-
-## Configuración de Kubernetes
-
-Para asegurar la alta disponibilidad exigida, el despliegue incluye:
-
-- Deployment: Configurado con 2 réplicas para balanceo de carga.
-- Service: Un LoadBalancer para distribuir el tráfico entre los pods.
-
-Comando de despliegue:
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
 
 ---
 
